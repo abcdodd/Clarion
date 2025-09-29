@@ -1,13 +1,9 @@
 /**
- * dashboard_choice_respect_v58.js (v61.3)
- * - Composite role resolution: RPC → profiles → allowlist → lsp
- * - Respects sessionStorage.force_dashboard
- * - Supports ?pick=1 to stay
- * - Exposes window.__clarionRoleTrace for debugging
+ * dashboard_choice_respect_v58.js (v61.6 final)
+ * - Loads env first, then supabase client (dynamic import)
+ * - Composite role: RPC → profiles → allowlist
+ * - Honors session override; supports ?pick=1
  */
-import supabase from "./supabase_client_v58.js";
-
-// Shared role constants
 const ROLE_TO_PATH = {
   admin: "/dashboard_admin.html",
   manager: "/dashboard_manager.html",
@@ -30,51 +26,66 @@ async function getRoleComposite(supabase){
     // 1) RPC
     try{
       const { data } = await supabase.rpc("clarion_self_role");
-      if (data){ trace.rpc = String(data).toLowerCase(); }
+      if (data) trace.rpc = String(data).toLowerCase();
     }catch(e){ trace.rpc = "rpc_error"; }
 
-    // 2) If RPC returns a non-lsp strong role, trust it
-    if (trace.rpc && trace.rpc !== "lsp" && STRONG_ROLES.has(trace.rpc)){ trace.via="rpc"; return { role: trace.rpc, trace }; }
+    if (trace.rpc && trace.rpc !== "lsp" && STRONG_ROLES.has(trace.rpc)){
+      trace.via = "rpc";
+      return { role: trace.rpc, trace };
+    }
 
-    // 3) Try profiles
+    // 2) profiles fallback
     let userId=null, email=null;
-    try{ const { data:{ user } } = await supabase.auth.getUser(); userId = user?.id || null; email = (user?.email||"").toLowerCase(); }catch{}
+    try{
+      const { data:{ user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+      email = (user?.email||"").toLowerCase();
+    }catch{}
     if (userId){
       try{
         const { data } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
         const pr = String(data?.role || "").toLowerCase();
-        if (STRONG_ROLES.has(pr) && pr !== "lsp"){ trace.via="profiles"; trace.profiles = pr; return { role: pr, trace }; }
+        if (STRONG_ROLES.has(pr) && pr !== "lsp"){
+          trace.via="profiles"; trace.profiles=pr;
+          return { role: pr, trace };
+        }
         trace.profiles = pr || "(none)";
       }catch(e){ trace.profiles = "profiles_error"; }
     }
 
-    // 4) Allowlist as final safety net during transition
-    if (email && ALLOWLIST.has(email)){ trace.via="allowlist"; trace.allow = email; return { role: "manager", trace }; }
+    // 3) allowlist safety net
+    if (email && ALLOWLIST.has(email)){
+      trace.via="allowlist"; trace.allow=email;
+      return { role:"manager", trace };
+    }
 
-    // 5) Fallback
     trace.via = trace.via || "fallback";
-    return { role: "lsp", trace };
+    return { role:"lsp", trace };
   }catch{
-    return { role: "lsp", trace: { via:"exception" } };
+    return { role:"lsp", trace:{ via:"exception" } };
   }
 }
 
 async function init(){
   const url = new URL(location.href);
-  if (url.searchParams.has("pick")) return; // stay on page if picker forced
+  if (url.searchParams.has("pick")) return; // stay for explicit chooser
 
-  // honor session override
-  try{ const forced = sessionStorage.getItem("force_dashboard"); if (forced && ROLE_TO_PATH[forced]) { go(ROLE_TO_PATH[forced]); return; } }catch{}
+  // Load env then client
+  await import("/js/env.js");
+  const { default: supabase } = await import("./supabase_client_v58.js");
 
-  // ensure signed in
+  // Honor session override if set
+  try{
+    const forced = sessionStorage.getItem("force_dashboard");
+    if (forced && ROLE_TO_PATH[forced]) { go(ROLE_TO_PATH[forced]); return; }
+  }catch{}
+
   const { data:{ session } } = await supabase.auth.getSession();
-  if (!session?.user) return; // auth_guard handles redirects per page
+  if (!session?.user) return; // page guard/HTML will handle login redirect
 
   const { role, trace } = await getRoleComposite(supabase);
-  // expose for diagnostics
   window.__clarionRoleTrace = trace;
-  const path = ROLE_TO_PATH[role] || ROLE_TO_PATH.lsp;
-  go(path);
+  go(ROLE_TO_PATH[role] || ROLE_TO_PATH.lsp);
 }
 
 document.addEventListener("DOMContentLoaded", init);

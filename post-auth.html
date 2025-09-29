@@ -6,27 +6,18 @@ body{margin:0;display:grid;place-items:center;background:var(--black);color:var(
 .box{padding:1rem 1.2rem;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
 .hint{opacity:.8}</style>
 <script type="module">
-  import "/js/env.js";
-  import supabase from "/js/supabase_client_v58.js";
-
   const DASHBOARD = {
     admin: "/dashboard_admin.html",
     manager: "/dashboard_manager.html",
     production: "/dashboard_production.html",
     lsp: "/dashboard_lsp.html"
   };
-
   function pathFor(role){ return DASHBOARD[role] || DASHBOARD.lsp; }
 
-  async function getRoleRpc(){
-    try {
-      const { data } = await supabase.rpc("clarion_self_role");
-      if (data) return String(data).toLowerCase();
-    } catch {}
-    return "lsp";
-  }
-
   (async()=>{
+    await import("/js/env.js");
+    const { default: supabase } = await import("/js/supabase_client_v58.js");
+
     const { data:{ session } } = await supabase.auth.getSession();
     if(!session?.user){
       const login = new URL("/login_basic.html", location.origin);
@@ -35,13 +26,14 @@ body{margin:0;display:grid;place-items:center;background:var(--black);color:var(
       return;
     }
     const url = new URL(location.href);
-    if (url.searchParams.has("pick")) return; // stay for picker
+    if (url.searchParams.has("pick")) return;
 
-    const role = await getRoleRpc();
-    const target = pathFor(role);
-    if ((location.pathname + location.search) !== target) {
-      location.replace(target);
-    }
+    let role = "lsp";
+    try {
+      const { data } = await supabase.rpc("clarion_self_role");
+      if (data) role = String(data).toLowerCase();
+    } catch {}
+    location.replace(pathFor(role));
   })();
 </script>
 <script type="module" src="/js/dashboard_choice_respect_v58.js"></script>
