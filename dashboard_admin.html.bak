@@ -1,0 +1,132 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard — Admin</title>
+<style>
+:root{--o:#FF6700;--s:#F7F7F7}
+body{margin:0;font-family:Inter,system-ui,Arial;color:var(--s);
+  background:linear-gradient(180deg,#262b31 0%,#2e3640 100%)}
+.top{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(28,28,28,.5)}
+.brand{font-size:1.45rem;font-weight:800}.right{margin-left:auto;display:flex;gap:.6rem;align-items:center}
+.btn{border:0;border-radius:999px;padding:.45rem .8rem;font-weight:800;cursor:pointer;color:#fff;background:#FF6700}
+.ghost{background:transparent;box-shadow:0 0 0 2px #FF6700 inset}
+.wrap{max-width:1200px;margin:0 auto;padding:1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.card{background:rgba(0,0,0,.35);border:2px solid #FF6700;border-radius:1rem;padding:1rem}
+table{width:100%;border-collapse:collapse}th,td{padding:.5rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.tabs{display:flex;gap:.5rem;margin:.8rem 0 .4rem;flex-wrap:wrap}
+.tabbtn{padding:.4rem .7rem;border-radius:.6rem;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25)}
+.tabpane{display:block}
+footer{margin-top:2rem;padding:1rem 0;opacity:.8;text-align:center}
+textarea{width:100%;min-height:120px;border-radius:.6rem;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;padding:.6rem}
+label{display:block;margin:.3rem 0 .2rem 0;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Clarion Location Services — Admin</div>
+  <div class="right">Signed in: <strong id="clrUserName"></strong> — <span id="clrUserEmail"></span>
+    <button id="btnOpenChat" class="btn ghost">Chat</button>
+    <button id="clrSignOut" class="btn">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="cards">
+    <div class="card"><h3>Clarion Call</h3><p>Open chat with the office.</p><button id="btnOpenChat" class="btn">Open Chat</button></div>
+    <div class="card"><h3>Applicants & Approvals</h3><p>Review and approve new LSP applications.</p><button id="tabApplicants" class="btn ghost">Open</button></div>
+    <div class="card"><h3>Bookings (Orders)</h3><p>See orders and update status.</p><button id="tabOrders" class="btn ghost">Open</button></div>
+    <div class="card"><h3>Pending Hours</h3><p>Approve submitted hours.</p><button id="tabHours" class="btn ghost">Open</button></div>
+    <div class="card"><h3>Clarion Safe (GPS)</h3><p>Recent pings.</p><button id="tabGPS" class="btn ghost">Open</button></div>
+    <div class="card"><h3>System Health</h3><p>Quick counts for key tables.</p><button id="tabHealth" class="btn ghost">Open</button></div>
+    <div class="card"><h3>Site Editor</h3><p>Homepage copy & layout blocks.</p><button id="tabSiteEditor" class="btn ghost">Open</button></div>
+  </section>
+
+  <section style="margin-top:1rem">
+    <div class="tabs">
+      <button id="tabApplicants" class="tabbtn">Applicants</button>
+      <button id="tabOrders" class="tabbtn">Orders</button>
+      <button id="tabHours" class="tabbtn">Hours</button>
+      <button id="tabGPS" class="tabbtn">GPS</button>
+      <button id="tabHealth" class="tabbtn">Health</button>
+      <button id="tabSiteEditor" class="tabbtn">Site Editor</button>
+    </div>
+
+    <div id="paneApplicants" class="tabpane">
+      <table id="tblApplicants"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td colspan="5">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div id="paneOrders" class="tabpane">
+      <table id="tblOrders"><thead><tr><th>Production</th><th>Location</th><th>Call</th><th>Date</th><th>Status</th><th>Assign</th></tr></thead><tbody><tr><td colspan="6">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div id="paneHours" class="tabpane">
+      <div style="margin:.4rem 0"><button id="btnApproveHours" class="btn">Approve Selected</button></div>
+      <table id="tblHours"><thead><tr><th></th><th>LSP</th><th>Production</th><th>Location</th><th>Start</th><th>Finish</th><th>Allowances</th><th>Status</th></tr></thead><tbody><tr><td colspan="8">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div id="paneGPS" class="tabpane">
+      <table id="tblGPS"><thead><tr><th>LSP</th><th>Email</th><th>Production</th><th>Lat</th><th>Lng</th><th>When</th></tr></thead><tbody><tr><td colspan="6">Loading…</td></tr></tbody></table>
+    </div>
+
+    <div id="paneHealth" class="tabpane">
+      <table id="tblHealth"><thead><tr><th>Table</th><th>Count</th></tr></thead><tbody><tr><td colspan="2">Loading…</td></tr></tbody></table>
+    </div>
+
+    <!-- Site Editor Pane -->
+    <div id="paneSiteEditor" class="tabpane" style="display:block">
+      <h3>Homepage Blocks</h3>
+      <div class="grid2">
+        <div>
+          <label>Top Left Card (Script)</label>
+          <textarea id="sc_home_top_left_card"></textarea>
+        </div>
+        <div>
+          <label>Top Right Card (Logo)</label>
+          <textarea id="sc_home_logo_card"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <label>Wide Banner (row 2)</label>
+        <textarea id="sc_home_wide_banner"></textarea>
+      </div>
+
+      <div class="grid2" style="margin-top:1rem">
+        <div>
+          <label>Row 3 — Left</label>
+          <textarea id="sc_home_row3_left"></textarea>
+        </div>
+        <div>
+          <label>Row 3 — Center</label>
+          <textarea id="sc_home_row3_center"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <label>Row 3 — Right</label>
+        <textarea id="sc_home_row3_right"></textarea>
+      </div>
+
+      <div style="display:flex;gap:.6rem;margin-top:.8rem">
+        <button id="btnSaveSiteContent" class="btn">Save</button>
+        <button id="btnReloadSiteContent" class="btn ghost">Reload</button>
+      </div>
+      <p style="opacity:.8;margin-top:.5rem">Tip: You can use HTML inside each block. The homepage will render the HTML directly.</p>
+    </div>
+  </section>
+</main>
+
+<footer>© Clarion Location Services</footer>
+
+<script type="module" src="/js/env.js"></script>
+<script type="module" src="/js/supabase_client_v58.js"></script>
+<script type="module" src="/js/auth_guard_v58.js"></script>
+<script type="module" src="/js/clarion_chat_widget_v58.js"></script>
+
+<!-- Existing Admin logic -->
+<script type="module" src="/js/admin_v58.js"></script>
+<!-- New: Site Editor logic -->
+<script type="module" src="/js/admin_site_editor_v58.js"></script>
+</body></html>

@@ -1,0 +1,1 @@
+Upload JS to /js/. Replace about.html, services.html, faq.html. Run the SQL in ops/ in Supabase SQL editor.

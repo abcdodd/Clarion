@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Clarion Diagnostics — Role Probe v61.3</title>
+<style>
+:root{--o:#FF6700;--s:#F7F7F7}
+body{margin:0;font-family:Inter,system-ui,Arial;color:var(--s);background:#1c1c1c}
+.wrap{max-width:900px;margin:0 auto;padding:1rem}
+.card{background:rgba(255,255,255,.04);border:2px solid var(--o);border-radius:1rem;padding:1rem;margin:.8rem 0}
+pre{white-space:pre-wrap;word-wrap:break-word;background:rgba(0,0,0,.3);padding:.6rem;border-radius:.5rem}
+.btn{border:0;border-radius:999px;padding:.45rem .8rem;font-weight:800;cursor:pointer;color:#fff;background:#FF6700;margin-right:.5rem}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+</style>
+<script type="module">
+  import "/js/env.js";
+  import supabase from "/js/supabase_client_v58.js";
+
+  const out = (id, v)=>{ document.getElementById(id).textContent = v; };
+
+  async function probe(){
+    const lines=[];
+    const { data:{ session } } = await supabase.auth.getSession();
+    const user = session?.user || null;
+    const email = user?.email || "(none)";
+    const uid = user?.id || "(none)";
+    out("email", email);
+    out("uid", uid);
+
+    // RPC role
+    let rpcRole="(error)";
+    try{
+      const { data } = await supabase.rpc("clarion_self_role");
+      rpcRole = String(data||"(null)");
+    }catch(e){ rpcRole = "rpc_error: " + (e?.message||e); }
+    out("rpc", rpcRole);
+
+    // Profiles role
+    let prRole="(error)";
+    try{
+      const { data, error } = await supabase.from("profiles").select("role").eq("id", uid).maybeSingle();
+      prRole = error ? ("select_error: " + error.message) : String(data?.role || "(null)");
+    }catch(e){ prRole = "profiles_error: " + (e?.message||e); }
+    out("profiles", prRole);
+
+    // Composite decision
+    let decided="(calc)";
+    try{
+      const m = await import("/js/auth_guard_v58.js"); // already sets __clarionRoleTrace
+    }catch{}
+    const trace = window.__clarionRoleTrace || {};
+    out("trace", JSON.stringify(trace,null,2));
+
+    // Buttons
+    document.getElementById("btnForceMgr").onclick = ()=>{ try{ sessionStorage.setItem("force_dashboard","manager"); }catch{} location.href="/dashboard_manager.html"; };
+    document.getElementById("btnClearForce").onclick = ()=>{ try{ sessionStorage.removeItem("force_dashboard"); }catch{} location.reload(); };
+  }
+
+  document.addEventListener("DOMContentLoaded", probe);
+</script>
+</head><body>
+  <div class="wrap">
+    <h1>Clarion Diagnostics — Role Probe v61.3</h1>
+    <div class="card">
+      <div><strong>Email:</strong> <span class="mono" id="email">(…)</span></div>
+      <div><strong>User ID:</strong> <span class="mono" id="uid">(…)</span></div>
+    </div>
+    <div class="card">
+      <div><strong>RPC role:</strong> <span class="mono" id="rpc">(…)</span></div>
+      <div><strong>Profiles.role:</strong> <span class="mono" id="profiles">(…)</span></div>
+      <div><strong>Composite trace:</strong></div>
+      <pre id="trace">(…)</pre>
+    </div>
+    <div class="card">
+      <button class="btn" id="btnForceMgr">Force Manager for this session</button>
+      <button class="btn" id="btnClearForce">Clear session override</button>
+      <p style="opacity:.8;margin-top:.6rem">Use the session override as a temporary bypass only. The router & guard will obey this for the current tab/session.</p>
+    </div>
+  </div>
+</body></html>

@@ -1,0 +1,6 @@
+// /js/site_content_v58.js
+import "/js/env.js";
+import supabase from "/js/supabase_client_v58.js";
+const ids = ["home_top_left_card","home_logo_card","home_wide_banner","home_row3_left","home_row3_center","home_row3_right","about_main","services_main","faq_main"];
+const keyFor = {home_top_left_card:"home_top_left_card_html",home_logo_card:"home_logo_card_html",home_wide_banner:"home_wide_banner_html",home_row3_left:"home_row3_left_html",home_row3_center:"home_row3_center_html",home_row3_right:"home_row3_right_html",about_main:"about_main_html",services_main:"services_main_html",faq_main:"faq_main_html"};
+(async()=>{try{const keys=Object.values(keyFor);const {data,error}=await supabase.from("site_content").select("key, content").in("key",keys);if(error)throw error;const map=new Map((data||[]).map(r=>[r.key,r.content]));ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;const key=keyFor[id];let html=map.get(key);if(html&&typeof html!=="string"){try{html=String(html)}catch{html=""}}if(html)el.innerHTML=html;});}catch(e){console.warn("site_content load error:",e?.message||e)}})();

@@ -1,0 +1,49 @@
+﻿<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Login â€” Clarion</title>
+<style>:root{--o:#FF6700;--s:#F7F7F7;--b:#1C1C1C}
+body{margin:0;display:grid;place-items:center;min-height:100dvh;background:var(--b);color:var(--s);font-family:Inter,system-ui}
+.panel{width:min(420px,92vw);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:1rem;background:rgba(255,255,255,.05)}
+label{display:block;margin:.4rem 0 .2rem 0}
+input{width:100%;padding:.6rem;border-radius:.6rem;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff}
+.row{display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin-top:.8rem}
+.btn{border:0;border-radius:999px;padding:.55rem .9rem;font-weight:800;cursor:pointer;color:#fff;background:var(--o)}
+.ghost{background:transparent;box-shadow:0 0 0 2px var(--o) inset}
+small a{color:#fff;text-decoration:underline}</style>
+<script type="module">
+  import "/js/env.js";
+  import supabase from "/js/supabase_client_v58.js";
+  const nextUrl=()=> new URLSearchParams(location.search).get("next") || "/post-auth.html";
+  addEventListener("DOMContentLoaded",()=>{
+    const f=document.getElementById("frm");
+    const out=document.getElementById("btnOut");
+    const reset=document.getElementById("btnReset");
+    f.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const fd=new FormData(f);
+      const email=fd.get("email"), password=fd.get("password");
+      const { error }=await supabase.auth.signInWithPassword({ email, password });
+      if(error) alert(error.message); else location.href=nextUrl();
+    });
+    out.addEventListener("click", async()=>{ await supabase.auth.signOut(); alert("Signed out."); });
+    reset.addEventListener("click", async()=>{
+      const email=(document.getElementById("email").value||"").trim();
+      if(!email) return alert("Enter email first");
+      const { error }=await supabase.auth.resetPasswordForEmail(email,{ redirectTo: location.origin + "/auth_reset.html" });
+      if(error) alert(error.message); else alert("Check your inbox for the reset link.");
+    });
+  });
+</script>
+<script type="module" src="/js/dashboard_choice_respect_v58.js"></script>
+</head><body>
+  <div class="panel">
+    <h2>Sign in to Clarion</h2>
+    <form id="frm">
+      <label>Email<input id="email" name="email" type="email" required placeholder="you@studio.com"/></label>
+      <label>Password<input id="password" name="password" type="password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"/></label>
+      <div class="row"><button class="btn" type="submit">Sign in</button><button class="btn ghost" type="button" id="btnReset">Reset Password</button></div>
+      <div class="row"><small>After sign-in, we route you automatically.</small><button class="btn ghost" type="button" id="btnOut">Sign out</button></div>
+      <div style="margin-top:.5rem"><small><a href="/">Back to home</a></small></div>
+    </form>
+  </div>
+</body></html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard — Manager</title>
+
+  <style>
+    :root{--o:#FF6700;--s:#F7F7F7}
+    body{margin:0;font-family:Inter,system-ui,Arial;color:var(--s);
+         background:linear-gradient(180deg,#262b31 0%,#2e3640 100%)}
+    .top{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;
+         border-bottom:1px solid rgba(255,255,255,.08);background:rgba(28,28,28,.5)}
+    .brand{font-size:1.45rem;font-weight:800}
+    .right{margin-left:auto;display:flex;gap:.6rem;align-items:center}
+    .btn{border:0;border-radius:999px;padding:.45rem .8rem;font-weight:800;cursor:pointer;color:#fff;background:#FF6700}
+    .ghost{background:transparent;box-shadow:0 0 0 2px #FF6700 inset}
+    .wrap{max-width:1200px;margin:0 auto;padding:1rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+    .card{background:rgba(0,0,0,.35);border:2px solid #FF6700;border-radius:1rem;padding:1rem}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.5rem;border-bottom:1px solid rgba(255,255,255,.1)}
+    footer{margin-top:2rem;padding:1rem 0;opacity:.8;text-align:center}
+  </style>
+
+  <!-- Role-aware router shim (v60 behind the scenes) -->
+  <script type="module" src="/js/dashboard_choice_respect_v58.js"></script>
+
+  <!-- Unified Output Panel + panel wiring -->
+  <script type="module" src="/js/output_panel_v1.js"></script>
+  <script type="module" src="/js/wire_output_v60.js"></script>
+
+  <!-- Profile Editor (Manager can edit any user; includes user search) -->
+  <script type="module" src="/js/profile_editor_v60.js"></script>
+
+  <!-- Bridge so the "Profiles" card opens the editor -->
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", ()=>{
+      const card = document.getElementById("cardProfilesOpen");
+      if (!card) return;
+      card.addEventListener("click", ()=>{
+        const btn = document.getElementById("btnOpenProfile");
+        if (btn) btn.click();
+      });
+    });
+  </script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">Clarion Location Services — Manager</div>
+    <div class="right">
+      Signed in: <strong id="clrUserName"></strong> — <span id="clrUserEmail"></span>
+      <button id="btnOpenChat" class="btn ghost">Chat</button>
+      <button id="clrSignOut" class="btn">Sign out</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="cards">
+      <div class="card">
+        <h3>Clarion Call</h3>
+        <p>Chat with office.</p>
+        <button class="btn">Open Chat</button>
+      </div>
+
+      <div class="card" id="cardProfilesOpen">
+        <h3>Profiles</h3>
+        <p>Search and edit any user’s profile.</p>
+        <button class="btn">Open</button>
+      </div>
+
+      <div class="card">
+        <h3>Approvals</h3>
+        <p>Review and approve applicants.</p>
+        <button id="btnOpenApprovals" class="btn">Open</button>
+      </div>
+
+      <div class="card">
+        <h3>LSP Hours (All)</h3>
+        <p>Browse submitted hours by anyone.</p>
+      </div>
+
+      <div class="card">
+        <h3>Bogey Reports (All)</h3>
+        <p>Review bogey reports.</p>
+      </div>
+
+      <div class="card">
+        <h3>Clarion Safe GPS</h3>
+        <p>View shift traces.</p>
+      </div>
+
+      <div class="card">
+        <h3>Bookings / Orders</h3>
+        <p>See all orders.</p>
+      </div>
+
+      <div class="card">
+        <h3>Site Editor</h3>
+        <p>Edit homepage copy and notices.</p>
+      </div>
+    </section>
+
+    <!-- Unified Output Panel -->
+    <section id="clarionOutputPanel" class="card card--output" style="display:none">
+      <h3 id="opTitle">Output</h3>
+      <div id="opBody" style="min-height:140px"></div>
+    </section>
+  </main>
+
+  <footer>© Clarion Location Services</footer>
+
+  <!-- App scripts -->
+  <script type="module" src="/js/env.js"></script>
+  <script type="module" src="/js/supabase_client_v58.js"></script>
+  <script type="module" src="/js/auth_guard_v58.js"></script>
+  <script type="module" src="/js/clarion_chat_widget_v58.js"></script>
+  <script type="module" src="/js/manager_v60.js"></script>
+
+<script type="module" src="/js/logout_v61.js"></script>
+</body>
+</html>

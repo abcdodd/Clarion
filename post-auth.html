@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Clarion — Redirecting…</title>
+<style>:root{--black:#1C1C1C;--soft:#F7F7F7}html,body{height:100%}
+body{margin:0;display:grid;place-items:center;background:var(--black);color:var(--soft);font-family:Inter,system-ui}
+.box{padding:1rem 1.2rem;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
+.hint{opacity:.8}</style>
+<script type="module">
+  import "/js/env.js";
+  import supabase from "/js/supabase_client_v58.js";
+
+  const DASHBOARD = {
+    admin: "/dashboard_admin.html",
+    manager: "/dashboard_manager.html",
+    production: "/dashboard_production.html",
+    lsp: "/dashboard_lsp.html"
+  };
+
+  function pathFor(role){ return DASHBOARD[role] || DASHBOARD.lsp; }
+
+  async function getRoleRpc(){
+    try {
+      const { data } = await supabase.rpc("clarion_self_role");
+      if (data) return String(data).toLowerCase();
+    } catch {}
+    return "lsp";
+  }
+
+  (async()=>{
+    const { data:{ session } } = await supabase.auth.getSession();
+    if(!session?.user){
+      const login = new URL("/login_basic.html", location.origin);
+      login.searchParams.set("next", "/post-auth.html" + location.search);
+      location.replace(login.pathname + "?" + login.searchParams.toString());
+      return;
+    }
+    const url = new URL(location.href);
+    if (url.searchParams.has("pick")) return; // stay for picker
+
+    const role = await getRoleRpc();
+    const target = pathFor(role);
+    if ((location.pathname + location.search) !== target) {
+      location.replace(target);
+    }
+  })();
+</script>
+<script type="module" src="/js/dashboard_choice_respect_v58.js"></script>
+</head><body>
+  <div class="box"><strong>Clarion</strong><div class="hint">Checking your sign-in…</div></div>
+</body></html>

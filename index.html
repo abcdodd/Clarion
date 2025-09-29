@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Clarion Location Services — GTHA Location Support</title>
+
+<!-- Fonts (keeps your palette; adds tasteful script just for the headline card) -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+:root{--orange:#FF6700;--soft:#F7F7F7}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial;color:var(--soft);
+  background:linear-gradient(180deg,#262b31 0%,#2e3640 100%)}
+
+/* Top bar */
+.top{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,.08);background:rgba(28,28,28,.5)}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:800}
+.logo img{width:28px;height:28px}
+.brand{font-size:1.45rem}
+.nav{margin-left:auto;display:flex;gap:.9rem;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:0;
+  border-radius:999px;padding:.55rem .9rem;font-weight:800;cursor:pointer}
+.btn-ghost{background:transparent;box-shadow:0 0 0 2px var(--orange) inset;color:#fff}
+
+.wrap{max-width:1100px;margin:0 auto;padding:1.2rem}
+
+/* Cards (keep the look, add orange borders per your request) */
+.card{background:rgba(0,0,0,.35);border:2px solid var(--orange);
+  border-radius:1rem;padding:1rem;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+
+/* Home grid */
+.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.wide{grid-column:1 / -1}
+
+/* Row of 3 cards below */
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+
+/* Script styling for the top-left card */
+.script-title{font-family:'Great Vibes',cursive;
+  font-size:clamp(28px,5vw,48px);margin:0 0 .4rem 0}
+.script-lines{font-family:'Great Vibes',cursive;
+  font-size:clamp(26px,4.5vw,40px);line-height:1.1;margin:0}
+
+/* Banner (wide) */
+.banner-head{font-size:clamp(24px,3.8vw,36px);margin:.2rem 0 .3rem 0}
+.banner-sub{opacity:.95;margin:0}
+
+/* Responsive */
+@media (max-width: 900px){
+  .homegrid{grid-template-columns:1fr}
+  .row3{grid-template-columns:1fr}
+}
+footer{margin-top:2rem;padding:1rem 0;border-top:1px solid rgba(255,255,255,.1);opacity:.85}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/"><img src="/img/Pylon-outline.png" alt="Clarion"/><span class="brand">Clarion Location Services</span></a>
+  <nav class="nav">
+    <a href="/about.html">About</a><a href="/services.html">Services</a><a href="/faq.html">FAQ</a>
+    <a class="btn btn-ghost" href="/login_basic.html?next=/post-auth.html" id="clrOpenLogin">Login</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <!-- Row 1: two cards across -->
+  <section class="homegrid">
+    <!-- Top-left: script headline -->
+    <div class="card" id="home_top_left_card">
+      <!-- Fallback content (DB will override) -->
+      <h2 class="script-title">Clarion Location Services</h2>
+      <p class="script-lines">Precision<br/>Professionalism<br/>Partnership</p>
+    </div>
+
+    <!-- Top-right: keep your logo card -->
+    <div class="card" id="home_logo_card">
+      <!-- Fallback content (DB will override) -->
+      <div style="display:grid;place-items:center;min-height:180px">
+        <img src="/img/clarion-logo.png" alt="Clarion Logo" style="max-width:240px;width:100%;height:auto"/>
+      </div>
+    </div>
+
+    <!-- Row 2: single wide card spanning both columns -->
+    <div class="card wide" id="home_wide_banner">
+      <!-- Fallback content (DB will override) -->
+      <h2 class="banner-head">Your Production; Our Priority</h2>
+      <p class="banner-sub">Expert Location Support throughout the GTHA<br/>On location, we handle the details so you can focus on the big picture.</p>
+    </div>
+  </section>
+
+  <!-- Row 3: three cards across -->
+  <section class="row3">
+    <div class="card" id="home_row3_left">
+      <h3>Dependable crew every time.</h3>
+      <p>Clarion provides trained LSPs to clear roads, distribute notices, file bogey reports, and help locations solve problems which cause production delays.</p>
+    </div>
+    <div class="card" id="home_row3_center">
+      <h3>Clear Communication</h3>
+      <p>Real-time updates, bogey reports, and direct office contact mean no surprises.</p>
+    </div>
+    <div class="card" id="home_row3_right">
+      <h3>Flexible Support</h3>
+      <p>Road clearing, set assist, BG Holding, labour and more.</p>
+    </div>
+  </section>
+
+  <!-- CTA row (kept from your style; optional) -->
+  <div style="display:flex;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap">
+    <a class="btn" style="background:#FF6700;color:#fff" href="/login_basic.html?next=/post-auth.html&as=production">Book Location Support</a>
+    <a class="btn btn-ghost" href="/faq.html">Read FAQ</a>
+  </div>
+</main>
+
+<footer class="wrap">© Clarion Location Services</footer>
+
+<!-- Public content loader -->
+<script type="module" src="/js/site_content_v58.js"></script>
+</body>
+</html>
